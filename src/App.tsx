@@ -64,12 +64,10 @@ const App: Component = () => {
   const [showDealerHand, setShowDealerHand] = createSignal(false);
   const [outputMessage, setOutputMessage] = createSignal("");
 
-  createEffect(() => console.log(showDealerHand()));
-
   function dealOne(setTarget: Setter<VisualCard[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
     setDeck((prev) => Array.from(prev.slice(1)));
-    if (deck.length === 0) setDeck(generateCards());
+    if (deck().length === 0) setDeck(generateCards());
   }
 
   function win() {
@@ -141,6 +139,8 @@ const App: Component = () => {
 
     push();
   }
+
+  createEffect(() => console.log(deck().length));
 
   function restart() {
     setDeck(generateCards());
