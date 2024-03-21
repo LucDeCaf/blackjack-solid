@@ -67,35 +67,14 @@ const App: Component = () => {
   function dealOne(setTarget: Setter<VisualCard[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
     setDeck((prev) => Array.from(prev.slice(1)));
-    if (deck().length === 0) {
-      setDeck(generateCards());
-      setOutputMessage("Shuffled");
-      setTimeout(() => setOutputMessage(""), 1000);
-    }
+    if (deck().length === 0) {setDeck(generateCards());
+    setOutputMessage("Shuffled");
+    setTimeout(() => setOutputMessage(""), 1000);
+    };
   }
 
-  function win() {
-    setOutputMessage("Player Wins");
-    setShowDealerHand(true);
-  }
-
-  function lose() {
-    setOutputMessage("Dealer Wins");
-    setShowDealerHand(true);
-  }
-
-  function push() {
-    setOutputMessage("Pushed");
-    setShowDealerHand(true);
-  }
-
-  function playerBlackjack() {
-    setOutputMessage("Blackjack!");
-    setShowDealerHand(true);
-  }
-
-  function dealerBlackjack() {
-    setOutputMessage("Blackjack");
+  function endGame(message: string) {
+    setOutputMessage(message);
     setShowDealerHand(true);
   }
 
@@ -105,12 +84,12 @@ const App: Component = () => {
     const sum = total(playerHand());
 
     if (sum > 21) {
-      lose();
+      endGame("Dealer wins");
       return;
     }
 
     if (playerHand().length >= 5) {
-      win();
+      endGame("Player wins");
       return;
     }
   }
@@ -124,7 +103,7 @@ const App: Component = () => {
       dealOne(setDealerHand);
 
       if (total(dealerHand()) > 21) {
-        win();
+        endGame("Player wins");
         return;
       }
     }
@@ -132,19 +111,17 @@ const App: Component = () => {
     const dealerTotal = total(dealerHand());
 
     if (dealerHand().length >= 5 || dealerTotal > playerTotal) {
-      lose();
+      endGame("Dealer wins");
       return;
     }
 
     if (dealerTotal < playerTotal) {
-      win();
+      endGame("Player wins");
       return;
     }
 
-    push();
+    endGame("Pushed");
   }
-
-  createEffect(() => console.log(deck().length));
 
   function restart() {
     setDeck(generateCards());
@@ -170,17 +147,12 @@ const App: Component = () => {
     const blackjackDealer = total(dealerHand()) === 21;
 
     if (blackjackPlayer && blackjackDealer) {
-      push();
+      endGame("Pushed");
       return;
     }
 
-    if (blackjackPlayer) {
-      playerBlackjack();
-      return;
-    }
-
-    if (blackjackDealer) {
-      dealerBlackjack();
+    if (blackjackPlayer || blackjackDealer) {
+      endGame("Blackjack"); 
       return;
     }
   }
