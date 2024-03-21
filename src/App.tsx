@@ -67,7 +67,11 @@ const App: Component = () => {
   function dealOne(setTarget: Setter<VisualCard[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
     setDeck((prev) => Array.from(prev.slice(1)));
-    if (deck().length === 0) setDeck(generateCards());
+    if (deck().length === 0) {
+      setDeck(generateCards());
+      setOutputMessage("Shuffled");
+      setTimeout(() => setOutputMessage(""), 1000);
+    }
   }
 
   function win() {
