@@ -1,23 +1,16 @@
-import {
-  type Component,
-  type ParentComponent,
-  For,
-  Match,
-  Switch,
-  createEffect,
-  Show,
-} from "solid-js";
+import { type Component, For, Match, Switch, createEffect } from "solid-js";
 import { createSignal, onMount } from "solid-js";
-import { twMerge } from "tailwind-merge";
+import { Button } from "./components/Button";
+import { Card as VisualCard } from "./components/Card";
 
-enum Suit {
+export enum Suit {
   CLUBS,
   DIAMONDS,
   HEARTS,
   SPADES,
 }
 
-type Card = {
+export type Card = {
   value: number;
   suit: Suit;
 };
@@ -76,92 +69,17 @@ const total = (cards: Card[]): number => {
   return total;
 };
 
-const Button: ParentComponent<{
-  class?: string;
-  onclick: (
-    e: MouseEvent & {
-      currentTarget: HTMLButtonElement;
-      target: Element;
-    }
-  ) => any;
-}> = (props) => {
-  return (
-    <button
-      onclick={props.onclick}
-      class={twMerge(
-        "bg-slate-300 rounded-md  h-8 px-6 text-slate-600",
-        props.class
-      )}
-    >
-      {props.children}
-    </button>
-  );
-};
-
-const Card: Component<{ shown: boolean } & Card> = (props) => {
-  const Base: ParentComponent<{ class?: string }> = (props) => {
-    return (
-      <div
-        class={twMerge(
-          "select-none w-24 bg-white rounded-md text-4xl aspect-card grid place-items-center border-4",
-          props.class
-        )}
-      >
-        {props.children}
-      </div>
-    );
-  };
-
-  let symbol: string;
-  switch (props.value) {
-    case 1:
-      symbol = "A";
-      break;
-    case 11:
-      symbol = "J";
-      break;
-    case 12:
-      symbol = "Q";
-      break;
-    case 13:
-      symbol = "K";
-      break;
-    default:
-      symbol = props.value.toString();
-      break;
-  }
-
-  return (
-    <>
-      <Show when={!props.shown}>
-        <Base class="border-slate-400"></Base>
-      </Show>
-      <Show when={props.shown}>
-        <Base
-          class={
-            props.suit === Suit.CLUBS || props.suit === Suit.SPADES
-              ? "border-slate-300 text-slate-300"
-              : "border-red-300 text-red-300"
-          }
-        >
-          {symbol}
-        </Base>
-      </Show>
-    </>
-  );
-};
-
 const App: Component = () => {
   const [deck, setDeck] = createSignal(generateCards());
-  const [playerHand, setPlayerHand] = createSignal<Card[]>([]);
-  const [dealerHand, setDealerHand] = createSignal<Card[]>([]);
+  const [playerHand, setPlayerHand] = createSignal<VisualCard[]>([]);
+  const [dealerHand, setDealerHand] = createSignal<VisualCard[]>([]);
 
   const [showDealerHand, setShowDealerHand] = createSignal(false);
   const [outputMessage, setOutputMessage] = createSignal("");
 
   createEffect(() => console.log(showDealerHand()));
 
-  function dealOne(setTarget: Setter<Card[]>) {
+  function dealOne(setTarget: Setter<VisualCard[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
     setDeck((prev) => Array.from(prev.slice(1)));
     if (deck.length === 0) setDeck(generateCards());
@@ -284,7 +202,7 @@ const App: Component = () => {
         <div class="flex flex-col items-center gap-4">
           <div class="flex gap-8">
             <For each={[...dealerHand()].reverse()}>
-              {(card) => <Card shown={showDealerHand()} {...card} />}
+              {(card) => <VisualCard shown={showDealerHand()} {...card} />}
             </For>
           </div>
 
@@ -302,7 +220,7 @@ const App: Component = () => {
 
           <div class="flex gap-8 mb-4">
             <For each={[...playerHand()].reverse()}>
-              {(card) => <Card shown={true} {...card} />}
+              {(card) => <VisualCard shown={true} {...card} />}
             </For>
           </div>
 
