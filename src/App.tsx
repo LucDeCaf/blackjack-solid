@@ -1,8 +1,9 @@
-import { type Component, For, Match, Switch, createEffect } from "solid-js";
+import { type Component, For, Match, Switch, Show } from "solid-js";
 import { createSignal, onMount } from "solid-js";
 import { Button } from "./components/Button";
-import { Card as VisualCard } from "./components/Card";
+import { BaseCard, Card as VisualCard } from "./components/Card";
 import type { Card, Setter } from "./types";
+import { PileMarker } from "./components/PileMarker";
 
 function shuffle<T>(arr: T[]) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -58,19 +59,20 @@ const total = (cards: Card[]): number => {
 
 const App: Component = () => {
   const [deck, setDeck] = createSignal(generateCards());
-  const [playerHand, setPlayerHand] = createSignal<VisualCard[]>([]);
-  const [dealerHand, setDealerHand] = createSignal<VisualCard[]>([]);
+  const [discard, setDiscard] = createSignal<Card[]>([]);
+  const [playerHand, setPlayerHand] = createSignal<Card[]>([]);
+  const [dealerHand, setDealerHand] = createSignal<Card[]>([]);
 
   const [showDealerHand, setShowDealerHand] = createSignal(false);
   const [outputMessage, setOutputMessage] = createSignal("");
 
-  function dealOne(setTarget: Setter<VisualCard[]>) {
+  function dealOne(setTarget: Setter<Card[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
-    setDeck((prev) => Array.from(prev.slice(1)));
+    setDeck((prev) => [...prev.slice(1)]);
+
     if (deck().length === 0) {
       setDeck(generateCards());
-      setOutputMessage("Shuffled");
-      setTimeout(() => setOutputMessage(""), 1000);
+      setDiscard([]);
     }
   }
 
@@ -107,11 +109,16 @@ const App: Component = () => {
         endGame("Player wins");
         return;
       }
+
+      if (dealerHand().length >= 5) {
+        endGame("Dealer wins");
+        return;
+      }
     }
 
     const dealerTotal = total(dealerHand());
 
-    if (dealerHand().length >= 5 || dealerTotal > playerTotal) {
+    if (dealerTotal > playerTotal) {
       endGame("Dealer wins");
       return;
     }
@@ -127,13 +134,15 @@ const App: Component = () => {
   function restart() {
     setDeck(generateCards());
     dealNew();
-    setOutputMessage("Shuffled");
-    setTimeout(() => setOutputMessage(""), 1000);
   }
 
   function dealNew() {
     setShowDealerHand(false);
     setOutputMessage("");
+
+    setDiscard((prev) =>
+      Array.from([...playerHand(), ...dealerHand(), ...prev])
+    );
 
     setPlayerHand([]);
     setDealerHand([]);
@@ -162,28 +171,43 @@ const App: Component = () => {
 
   return (
     <main class=" p-16 h-screen grid grid-cols-3">
-      <div class="flex flex-col gap-12 relative">
-        <div>
-          <For each={deck()}>
-            {(card, i) => {
-              let top;
+      <div class="flex flex-col w-min">
+        <div class="flex gap-12">
+          <div class="relative w-24 h-44">
+            <Show when={deck().length > 0}>
+              <BaseCard class="border-slate-400 absolute top-8" />
+            </Show>
+            <Show when={deck().length > 1}>
+              <BaseCard class="border-slate-400 absolute top-4" />
+            </Show>
+            <Show when={deck().length > 2}>
+              <BaseCard class="border-slate-400 absolute top-0" />
+            </Show>
+          </div>
 
-              if (i() === deck().length - 1) top = "top-4";
-              else if (i() === deck().length - 2) top = "top-6";
-              else top = "top-8";
+          <div class="flex flex-col gap-4 relative">
+            <PileMarker class="absolute top-8" />
 
-              return (
-                <VisualCard
-                  class={"absolute left-0 " + top}
-                  shown={false}
-                  {...card}
-                />
-              );
-            }}
-          </For>
-          <p class="text-slate-400 text-xl absolute top-44 w-24 text-center">{deck().length}</p>
+            <div class="relative w-24 h-44">
+              <Show when={discard().length > 0}>
+                <BaseCard class="border-slate-300 absolute top-8" />
+              </Show>
+              <Show when={discard().length > 1}>
+                <BaseCard class="border-slate-300 absolute top-4" />
+              </Show>
+              <Show when={discard().length > 2}>
+                <BaseCard class="border-slate-300 absolute top-0" />
+              </Show>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex text-slate-400 text-lg text-center w-full gap-12">
+          <p class="w-1/2">{deck().length}</p>
+          <p class="w-1/2">{discard().length}</p>
         </div>
       </div>
+
       <div class="relative flex flex-col items-center justify-between h-full">
         <div class="flex flex-col items-center gap-4">
           <div class="flex gap-8">

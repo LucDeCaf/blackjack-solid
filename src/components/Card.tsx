@@ -7,7 +7,7 @@ type CardProps = {
   class?: string;
 } & Card;
 
-const Base: ParentComponent<{ class?: string }> = (props) => {
+const BaseCard: ParentComponent<{ class?: string }> = (props) => {
   return (
     <div
       class={twMerge(
@@ -43,10 +43,10 @@ const Card: Component<CardProps> = (props) => {
   return (
     <>
       <Show when={!props.shown}>
-        <Base class={twMerge("border-slate-400", props.class)}></Base>
+        <BaseCard class={twMerge("border-slate-400", props.class)}></BaseCard>
       </Show>
       <Show when={props.shown}>
-        <Base
+        <BaseCard
           class={twMerge(
             props.suit === Suit.CLUBS || props.suit === Suit.SPADES
               ? "border-slate-300 text-slate-300"
@@ -55,10 +55,10 @@ const Card: Component<CardProps> = (props) => {
           )}
         >
           {symbol}
-        </Base>
+        </BaseCard>
       </Show>
     </>
   );
 };
 
-export { Card };
+export { Card, BaseCard };
