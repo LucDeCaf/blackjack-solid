@@ -67,10 +67,11 @@ const App: Component = () => {
   function dealOne(setTarget: Setter<VisualCard[]>) {
     setTarget((prev) => [deck()[0], ...prev]);
     setDeck((prev) => Array.from(prev.slice(1)));
-    if (deck().length === 0) {setDeck(generateCards());
-    setOutputMessage("Shuffled");
-    setTimeout(() => setOutputMessage(""), 1000);
-    };
+    if (deck().length === 0) {
+      setDeck(generateCards());
+      setOutputMessage("Shuffled");
+      setTimeout(() => setOutputMessage(""), 1000);
+    }
   }
 
   function endGame(message: string) {
@@ -152,7 +153,7 @@ const App: Component = () => {
     }
 
     if (blackjackPlayer || blackjackDealer) {
-      endGame("Blackjack"); 
+      endGame("Blackjack");
       return;
     }
   }
@@ -160,7 +161,29 @@ const App: Component = () => {
   onMount(() => restart());
 
   return (
-    <main class=" p-16 h-screen">
+    <main class=" p-16 h-screen grid grid-cols-3">
+      <div class="flex flex-col gap-12 relative">
+        <div>
+          <For each={deck()}>
+            {(card, i) => {
+              let top;
+
+              if (i() === deck().length - 1) top = "top-4";
+              else if (i() === deck().length - 2) top = "top-6";
+              else top = "top-8";
+
+              return (
+                <VisualCard
+                  class={"absolute left-0 " + top}
+                  shown={false}
+                  {...card}
+                />
+              );
+            }}
+          </For>
+          <p class="text-slate-400 text-xl absolute top-44 w-24 text-center">{deck().length}</p>
+        </div>
+      </div>
       <div class="relative flex flex-col items-center justify-between h-full">
         <div class="flex flex-col items-center gap-4">
           <div class="flex gap-8">

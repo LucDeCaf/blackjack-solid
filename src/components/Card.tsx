@@ -2,20 +2,25 @@ import { Show, type Component, type ParentComponent } from "solid-js";
 import { type Card, Suit } from "../types";
 import { twMerge } from "tailwind-merge";
 
-const Card: Component<{ shown: boolean } & Card> = (props) => {
-  const Base: ParentComponent<{ class?: string }> = (props) => {
-    return (
-      <div
-        class={twMerge(
-          "select-none w-24 bg-white rounded-md text-4xl aspect-card grid place-items-center border-4",
-          props.class
-        )}
-      >
-        {props.children}
-      </div>
-    );
-  };
+type CardProps = {
+  shown: boolean;
+  class?: string;
+} & Card;
 
+const Base: ParentComponent<{ class?: string }> = (props) => {
+  return (
+    <div
+      class={twMerge(
+        "select-none w-24 bg-white rounded-md text-4xl aspect-card grid place-items-center border-4",
+        props.class
+      )}
+    >
+      {props.children}
+    </div>
+  );
+};
+
+const Card: Component<CardProps> = (props) => {
   let symbol: string;
   switch (props.value) {
     case 1:
@@ -38,15 +43,16 @@ const Card: Component<{ shown: boolean } & Card> = (props) => {
   return (
     <>
       <Show when={!props.shown}>
-        <Base class="border-slate-400"></Base>
+        <Base class={twMerge("border-slate-400", props.class)}></Base>
       </Show>
       <Show when={props.shown}>
         <Base
-          class={
+          class={twMerge(
             props.suit === Suit.CLUBS || props.suit === Suit.SPADES
               ? "border-slate-300 text-slate-300"
-              : "border-red-300 text-red-300"
-          }
+              : "border-red-300 text-red-300",
+            props.class
+          )}
         >
           {symbol}
         </Base>
