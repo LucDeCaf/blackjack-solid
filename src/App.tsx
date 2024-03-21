@@ -2,20 +2,7 @@ import { type Component, For, Match, Switch, createEffect } from "solid-js";
 import { createSignal, onMount } from "solid-js";
 import { Button } from "./components/Button";
 import { Card as VisualCard } from "./components/Card";
-
-export enum Suit {
-  CLUBS,
-  DIAMONDS,
-  HEARTS,
-  SPADES,
-}
-
-export type Card = {
-  value: number;
-  suit: Suit;
-};
-
-type Setter<T> = (v: T | ((prev: T) => T)) => T;
+import type { Card, Setter } from "./types";
 
 function shuffle<T>(arr: T[]) {
   for (let i = arr.length - 1; i > 0; i--) {

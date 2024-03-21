@@ -1,5 +1,5 @@
 import { Show, type Component, type ParentComponent } from "solid-js";
-import { Suit, type Card } from "../App";
+import { type Card, Suit } from "../types";
 import { twMerge } from "tailwind-merge";
 
 const Card: Component<{ shown: boolean } & Card> = (props) => {
